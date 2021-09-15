@@ -10,12 +10,18 @@ import needle as ndl
 
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR forward passes
-def test_forward():
+def test_divide_forward():
     np.testing.assert_allclose(ndl.divide(ndl.Tensor([[3.3 , 4.35, 1.2 ],
        [2.45, 0.95, 2.55]]), ndl.Tensor([[4.6 , 4.35, 4.8 ],
        [0.65, 0.7 , 4.4 ]])).data, np.array([[0.717391304348, 1.            , 0.25          ],
        [3.769230769231, 1.357142857143, 0.579545454545]]))
+    
+
+def test_divide_scalar_forward():
     np.testing.assert_allclose(ndl.divide_scalar(ndl.Tensor([[1.7 , 1.45]]), scalar=12).data, np.array([[0.141666666667, 0.120833333333]]))
+    
+
+def test_matmul_forward():
     np.testing.assert_allclose(ndl.matmul(ndl.Tensor([[4.95, 1.75, 0.25],
        [4.15, 4.25, 0.3 ],
        [0.3 , 0.4 , 2.1 ]]), ndl.Tensor([[1.35, 2.2 , 1.55],
@@ -75,6 +81,9 @@ def test_forward():
        [[ 1.4975,  4.795 ,  4.25  ],
         [ 4.5325,  9.065 ,  3.85  ],
         [ 5.2825, 12.915 ,  8.375 ]]]))
+    
+
+def test_summation_forward():
     np.testing.assert_allclose(ndl.summation(ndl.Tensor([[2.2 , 4.35, 1.4 , 0.3 , 2.65],
        [1.  , 0.85, 2.75, 3.8 , 1.55],
        [3.2 , 2.3 , 3.45, 0.7 , 0.  ]])).data, np.array(30.5))
@@ -86,6 +95,9 @@ def test_forward():
     np.testing.assert_allclose(ndl.summation(ndl.Tensor([[1.5 , 3.85, 3.45],
        [1.35, 1.3 , 0.65],
        [2.6 , 4.55, 0.25]]), axes=0).data, np.array([5.45, 9.7 , 4.35]))
+    
+
+def test_broadcast_to_forward():
     np.testing.assert_allclose(ndl.broadcast_to(ndl.Tensor([[1.85, 0.85, 0.6 ]]), shape=(3, 3, 3)).data, np.array([[[1.85, 0.85, 0.6 ],
         [1.85, 0.85, 0.6 ],
         [1.85, 0.85, 0.6 ]],
@@ -95,6 +107,9 @@ def test_forward():
        [[1.85, 0.85, 0.6 ],
         [1.85, 0.85, 0.6 ],
         [1.85, 0.85, 0.6 ]]]))
+    
+
+def test_reshape_forward():
     np.testing.assert_allclose(ndl.reshape(ndl.Tensor([[2.9 , 2.  , 2.4 ],
        [3.95, 3.95, 4.65],
        [2.1 , 2.5 , 2.7 ],
@@ -112,7 +127,12 @@ def test_forward():
        [[2.8 , 1.75, 2.8 , 0.6 ],
         [3.75, 0.6 , 0.  , 3.5 ],
         [0.15, 1.9 , 4.75, 2.8 ]]]))
+    
+def test_negate_forward():
     np.testing.assert_allclose(ndl.negate(ndl.Tensor([[1.45, 0.55]])).data, np.array([[-1.45, -0.55]]))
+    
+
+def test_transpose_forward():
     np.testing.assert_allclose(ndl.transpose(ndl.Tensor([[[1.95]],
        [[2.7 ]],
        [[3.75]]]), axes=(1, 2)).data, np.array([[[1.95]],
@@ -178,6 +198,7 @@ def test_forward():
         [1.85, 2.5 , 4.8 ],
         [4.35, 4.25, 3.05]]]))
 
+
 def submit_forward():
     mugrade.submit(ndl.divide(ndl.Tensor([[3.4 , 2.35, 1.25 ], [0.45, 1.95, 2.55]]),
                               ndl.Tensor([[4.9 , 4.35, 4.1 ], [0.65, 0.7 , 4.04 ]])).data)
@@ -234,19 +255,40 @@ def backward_check(f, *args, **kwargs):
     return [g.numpy() for g in backward_grad]
 
 
-def test_backward():
+def test_divide_backward():
     backward_check(ndl.divide, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(5 + np.random.randn(5, 4)))
+    
+
+def test_divide_scalar_backward():
     backward_check(ndl.divide_scalar, ndl.Tensor(np.random.randn(5, 4)), scalar=np.random.randn(1))
+    
+
+def test_matmul_backward():
     backward_check(ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(4, 5)))
     backward_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
+    
+
+def test_reshape_backward():
     backward_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(4, 5))
+
+
+def test_negate_backward():
     backward_check(ndl.negate, ndl.Tensor(np.random.randn(5, 4)))
+    
+
+def test_transpose_backward():
     backward_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))
+    
+
+def test_broadcast_to_backward():
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(3, 1)), shape=(3, 3))
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(1, 3)), shape=(3, 3))
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(1,)), shape=(3, 3, 3))
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn()), shape=(3, 3, 3))
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(5,4,1)), shape=(5,4,3))
+    
+
+def test_summation_backward():
     backward_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(1,))
     backward_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(0,))
     backward_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(0,1))
