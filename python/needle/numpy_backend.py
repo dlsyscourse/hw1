@@ -140,9 +140,7 @@ def log(inputs, attrs):
 
 @register_numpy_compute("Exp")
 def exp(inputs, attrs):
-    ### BEGIN YOUR SOLUTION
-    raise NotImplementedError()
-    ### END YOUR SOLUTION
+    return np.exp(inputs[0])
 
 
 @register_numpy_compute("ReLU")

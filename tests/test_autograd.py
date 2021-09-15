@@ -81,7 +81,41 @@ def test_matmul_forward():
        [[ 1.4975,  4.795 ,  4.25  ],
         [ 4.5325,  9.065 ,  3.85  ],
         [ 5.2825, 12.915 ,  8.375 ]]]))
-    
+    np.testing.assert_allclose(ndl.matmul(ndl.Tensor([[1.9 , 1.9 ],
+       [4.8 , 4.9 ],
+       [3.25, 3.75]]), ndl.Tensor([[[1.25, 1.8 , 1.95],
+        [3.75, 2.85, 2.25]],
+       [[1.75, 2.7 , 3.3 ],
+        [2.95, 1.55, 3.85]],
+       [[4.2 , 3.05, 3.35],
+        [3.3 , 4.75, 2.1 ]]])).data, np.array([[[ 9.5   ,  8.835 ,  7.98  ],
+        [24.375 , 22.605 , 20.385 ],
+        [18.125 , 16.5375, 14.775 ]],
+       [[ 8.93  ,  8.075 , 13.585 ],
+        [22.855 , 20.555 , 34.705 ],
+        [16.75  , 14.5875, 25.1625]],
+       [[14.25  , 14.82  , 10.355 ],
+        [36.33  , 37.915 , 26.37  ],
+        [26.025 , 27.725 , 18.7625]]]))
+    np.testing.assert_allclose(ndl.matmul(ndl.Tensor([[[3.4 , 2.95],
+        [0.25, 1.95],
+        [4.4 , 4.4 ]],
+       [[0.55, 1.1 ],
+        [0.75, 1.55],
+        [4.1 , 1.2 ]],
+       [[1.5 , 4.05],
+        [1.5 , 1.55],
+        [2.3 , 1.25]]]), ndl.Tensor([[2.2 , 0.65, 2.5 ],
+       [2.5 , 1.3 , 0.15]])).data, np.array([[[14.855 ,  6.045 ,  8.9425],
+        [ 5.425 ,  2.6975,  0.9175],
+        [20.68  ,  8.58  , 11.66  ]],
+       [[ 3.96  ,  1.7875,  1.54  ],
+        [ 5.525 ,  2.5025,  2.1075],
+        [12.02  ,  4.225 , 10.43  ]],
+       [[13.425 ,  6.24  ,  4.3575],
+        [ 7.175 ,  2.99  ,  3.9825],
+        [ 8.185 ,  3.12  ,  5.9375]]])) 
+
 
 def test_summation_forward():
     np.testing.assert_allclose(ndl.summation(ndl.Tensor([[2.2 , 4.35, 1.4 , 0.3 , 2.65],
@@ -269,7 +303,9 @@ def test_matmul_simple_backward():
 
 def test_matmul_batched_backward():
     backward_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
-    
+    backward_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(4, 3)))
+    backward_check(ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
+
 
 def test_reshape_backward():
     backward_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(4, 5))
@@ -281,7 +317,7 @@ def test_negate_backward():
 
 def test_transpose_backward():
     backward_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))
-    
+    backward_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(0, 1))
 
 def test_broadcast_to_backward():
     backward_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(3, 1)), shape=(3, 3))
@@ -621,3 +657,4 @@ def submit_nn_epoch_ndl():
     mugrade.submit(np.linalg.norm(W1.numpy()))
     mugrade.submit(np.linalg.norm(W2.numpy()))
     mugrade.submit(loss_err(ndl.Tensor(np.maximum(X@W1.numpy(),0))@W2, y))
+

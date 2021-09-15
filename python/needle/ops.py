@@ -238,9 +238,7 @@ class ExpOp(Op):
         return Tensor.make_from_op(self, [a])
 
     def gradient(self, out_grad, node):
-        ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
-        ### END YOUR SOLUTION
+        return [exp(node.inputs[0]) * out_grad]
 
 
 exp = register_op("Exp", ExpOp())
