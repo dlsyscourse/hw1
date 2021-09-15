@@ -78,75 +78,75 @@ def multiply_scalar(inputs, attrs):
 @register_numpy_compute("EWiseDiv")
 def divide(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("DivScalar")
 def divide_scalar(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("MatMul")
 def matmul(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Summation")
 def summation(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("BroadcastTo")
 def broadcast_to(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Reshape")
 def reshape(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Negate")
 def negate(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Transpose")
 def transpose(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Log")
 def log(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("Exp")
 def exp(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
 @register_numpy_compute("ReLU")
 def relu(inputs, attrs):
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION

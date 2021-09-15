@@ -30,7 +30,7 @@ def parse_mnist(image_filesname, label_filename):
                 for MNIST will contain the values 0-9.
     """
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
@@ -51,7 +51,7 @@ def softmax_loss(Z, y_one_hot):
         Average softmax loss over the sample. (ndl.Tensor[np.float32])
     """
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
@@ -80,7 +80,7 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
     """
 
     ### BEGIN YOUR SOLUTION
-    pass
+    raise NotImplementedError()
     ### END YOUR SOLUTION
 
 
