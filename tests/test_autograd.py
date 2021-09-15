@@ -1,6 +1,6 @@
 import sys
 sys.path.append('./python')
-sys.path.append('./python/apps')
+sys.path.append('./apps')
 from simple_ml import *
 import numdifftools as nd
 
@@ -228,10 +228,11 @@ def backward_check(f, *args, **kwargs):
             f2 = (f(*args, **kwargs).numpy() * c).sum()
             args[i].flat[j] += eps
             numerical_grad[i].flat[j] = (f1 - f2)/(2*eps)
-    backward_grad = f.gradient([ndl.Tensor(c)], out, out.attrs)
+    backward_grad = f.gradient(ndl.Tensor(c), out)
     error = sum(np.linalg.norm(backward_grad[i].numpy() - numerical_grad[i]) for i in range(len(args)))
     assert error < 1e-6
     return [g.numpy() for g in backward_grad]
+
 
 def test_backward():
     backward_check(ndl.divide, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(5 + np.random.randn(5, 4)))
@@ -348,18 +349,18 @@ def submit_topo_sort():
     a1, b1 = ndl.Tensor(np.asarray([[0.9067453], [0.18521121]])), ndl.Tensor(np.asarray([[0.80992494, 0.52458167]]))
     c1 = 3 * ((b1 @ a1) + (2.3412 * b1) @ a1) + 1.5
 
-    topo_order = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([c1])])
+    topo_order2 = [x.numpy() for x in ndl.autograd.find_topo_sort([c1])]
 
-    mugrade.submit(topo_order)
+    mugrade.submit(topo_order2)
 
     # mugrade test case 3
     c = ndl.Tensor(np.asarray([[-0.16541387, 2.52604789], [-0.31008569, -0.4748876]]))
     d = ndl.Tensor(np.asarray([[0.55936155, -2.12630983], [0.59930618, -0.19554253]]))
     f = (c + d@d - d) @ c
 
-    topo_order = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([f])])
+    topo_order3 = np.array([x.numpy() for x in ndl.autograd.find_topo_sort([f])])
 
-    mugrade.submit(topo_order)
+    mugrade.submit(topo_order3)
 
 
 ##############################################################################
@@ -396,6 +397,26 @@ def test_compute_gradient():
                    ndl.Tensor(np.random.randn(10,5)),
                    ndl.Tensor(np.random.randn(10,5)))
 
+    # check gradient of gradient
+    x2 = ndl.Tensor([6])
+    x3 = ndl.Tensor([0])
+    y = x2 * x2 + x2 * x3
+    y.backward()
+    grad_x2 = x2.grad
+    grad_x3 = x3.grad
+    # gradient of gradient
+    grad_x2.backward()
+    grad_x2_x2 = x2.grad
+    grad_x2_x3 = x3.grad
+    x2_val = x2.numpy()
+    x3_val = x3.numpy()
+    assert y.numpy() == x2_val * x2_val + x2_val * x3_val
+    assert grad_x2.numpy() == 2 * x2_val + x3_val
+    assert grad_x3.numpy() == x2_val
+    assert grad_x2_x2.numpy() == 2
+    assert grad_x2_x3.numpy() == 1
+
+
 def submit_compute_gradient():
     a = ndl.Tensor(np.array([[-0.2985143, 0.36875625],
                              [-0.918687, 0.52262925]]))
@@ -403,9 +424,9 @@ def submit_compute_gradient():
                              [-0.15932137, -0.55618462]]))
     c = ndl.Tensor(np.array([[-0.5096208, 0.73466865],
                              [0.38762148, -0.41149092]]))
-    d = (a + b)@c(a + c)
+    d = (a + b)@c@(a + c)
     d.backward()
-    grads = [x.grad for x in [a, b, c]]
+    grads = [x.grad.numpy() for x in [a, b, c]]
     mugrade.submit(grads)
 
     # just need a fixed function or two to send results to mugrade
@@ -421,11 +442,27 @@ def submit_compute_gradient():
     c = ndl.Tensor(np.array([[1.25727301, 0.39400789, 1.29139323, -0.950472],
                              [-0.21250305, -0.93591609, 1.6802009, -0.39765765],
                              [-0.16926597, -0.45218718, 0.38103032, -0.11321965]]))
-    output = ndl.summation(c@c@(a@b))
+    output = ndl.summation((a@b)@c@a)
     output.backward()
-    grads = [x.grad for x in [a, b, c]]
+    grads = [x.grad.numpy() for x in [a, b, c]]
     mugrade.submit(grads)
 
+    x2 = ndl.Tensor(3)
+    x3 = ndl.Tensor(2)
+    y = x2 * x2 - x2 * x3
+    y.backward()
+    grad_x2 = x2.grad
+    grad_x3 = x3.grad
+    # gradient of gradient
+    grad_x2.backward()
+    grad_x2_x2 = x2.grad
+    grad_x2_x3 = x3.grad
+    x2_val = x2.numpy()
+    x3_val = x3.numpy()
+    mugrade.submit(y.numpy())
+    mugrade.submit(grad_x2.numpy())
+    mugrade.submit(grad_x3.numpy())
+    mugrade.submit(grad_x2_x2.numpy())
 
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR softmax_loss
@@ -456,15 +493,20 @@ def test_softmax_loss_ndl():
 
 
 def submit_softmax_loss_ndl():
+    # add a mugrade submit for log and exp
+    np.random.seed(0)
+    mugrade.submit(backward_check(ndl.log, ndl.Tensor(1 + np.random.rand(5, 4))))
+    mugrade.submit(backward_check(ndl.exp, ndl.Tensor(np.random.randn(5, 4))))
+
     X,y = parse_mnist("data/t10k-images-idx3-ubyte.gz",
                       "data/t10k-labels-idx1-ubyte.gz")
-    np.random.seed(0)
-    y = ndl.Tensor(y)
+
+    # y = ndl.Tensor(y)
     y_one_hot = np.zeros((y.shape[0], 10))
     y_one_hot[np.arange(y.size), y] = 1
-    y = ndl.Tensor(y_one_hot)
-    mugrade.submit(softmax_loss(ndl.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32)),y))
-    mugrade.submit(softmax_loss(ndl.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32)),y))
+    y = y_one_hot
+    mugrade.submit(softmax_loss(ndl.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32)), y).numpy())
+    mugrade.submit(softmax_loss(ndl.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32)), y).numpy())
 
 
 ##############################################################################
@@ -522,6 +564,7 @@ def submit_nn_epoch_ndl():
     W1 = ndl.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
     W2 = ndl.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
     W1, W2 = nn_epoch(X[:100], y[:100], W1, W2, lr=0.1, batch=100)
+
     mugrade.submit(np.linalg.norm(W1.numpy()))
     mugrade.submit(np.linalg.norm(W2.numpy()))
 
@@ -529,6 +572,7 @@ def submit_nn_epoch_ndl():
     W1 = ndl.Tensor(np.random.randn(X.shape[1], 100).astype(np.float32) / np.sqrt(100))
     W2 = ndl.Tensor(np.random.randn(100, 10).astype(np.float32) / np.sqrt(10))
     W1, W2 = nn_epoch(X, y, W1, W2, lr=0.2, batch=100)
+
     mugrade.submit(np.linalg.norm(W1.numpy()))
     mugrade.submit(np.linalg.norm(W2.numpy()))
-    mugrade.submit(loss_err(np.maximum(X@W1.numpy(),0)@W2.numpy(), y))
+    mugrade.submit(loss_err(ndl.Tensor(np.maximum(X@W1.numpy(),0))@W2, y))

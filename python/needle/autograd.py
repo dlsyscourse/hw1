@@ -10,7 +10,20 @@ LAZY_MODE = False
 class Op:
     """Operator definition."""
 
-    def gradient(self, output_grads, node, attrs) -> List["Value"]:
+    def gradient(self, out_grad: "Value", node: "Value") -> List["Value"]:
+        """Compute partial adjoint for each input value for a given output adjoint.
+        Parameters
+        ----------
+        out_grad: Value
+            The adjoint wrt to the output value.
+        node: Value
+            The value node of forward evaluation.
+        Returns
+        -------
+        input_grads: List[Value]
+            A list containing partial gradient adjoints to be propagated to
+            each of the input node.
+        """
         raise NotImplementedError()
 
 
@@ -208,10 +221,6 @@ def compute_gradient_of_variables(output_tensor, out_grad):
     """Take gradient of output node with respect to each node in node_list.
 
     Store the computed result in the grad field of each Variable.
-
-    Parameters
-    ----------
-    output_node: output node that we are taking derivative of.
     """
     # a map from node to a list of gradient contributions from each output node
     node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {}

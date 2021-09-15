@@ -71,8 +71,8 @@ class EWiseAddOp(Op):
     def __call__(self, a: Tensor, b: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a, b])
 
-    def gradient(self, output_grads, node, attrs):
-        return [output_grads[0], output_grads[0]]
+    def gradient(self, out_grad, node):
+        return [out_grad, out_grad]
 
 
 add = register_op("EWiseAdd", EWiseAddOp())
@@ -82,8 +82,8 @@ class AddScalarOp(Op):
     def __call__(self, a: Tensor, scalar: Number) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
 
-    def gradient(self, output_grads, node, attrs):
-        return [output_grads[0]]
+    def gradient(self, out_grad, node):
+        return [out_grad]
 
 
 add_scalar = register_op("AddScalar", AddScalarOp())
@@ -95,9 +95,9 @@ class EWiseMulOp(Op):
     def __call__(self, a: Tensor, b: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a, b])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         lhs, rhs = node.inputs
-        return (output_grads[0] * rhs, output_grads[0] * lhs)
+        return (out_grad * rhs, out_grad * lhs)
 
 
 multiply = register_op("EWiseMul", EWiseMulOp())
@@ -107,8 +107,8 @@ class MulScalarOp(Op):
     def __call__(self, a: Tensor, scalar: Number) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
 
-    def gradient(self, output_grads, node, attrs):
-        return [output_grads[0] * attrs["scalar"]]
+    def gradient(self, out_grad, node):
+        return [out_grad * node.attrs["scalar"]]
 
 
 multiply_scalar = register_op("MulScalar", MulScalarOp())
@@ -120,7 +120,7 @@ class EWiseDivOp(Op):
     def __call__(self, a: Tensor, b: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a, b])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -133,8 +133,8 @@ class DivScalarOp(Op):
     def __call__(self, a: Tensor, scalar: Number) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
 
-    def gradient(self, output_grads, node, attrs):
-        return [output_grads[0] / attrs["scalar"]]
+    def gradient(self, out_grad, node):
+        return [out_grad / node.attrs["scalar"]]
 
 
 divide_scalar = register_op("DivScalar", DivScalarOp())
@@ -144,7 +144,7 @@ class MatMulOp(Op):
     def __call__(self, a: Tensor, b: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a, b])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -157,7 +157,7 @@ class SummationOp(Op):
     def __call__(self, a: Tensor, axes: Optional[tuple] = None) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"axes": axes})
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -170,7 +170,7 @@ class BroadcastToOp(Op):
     def __call__(self, a: Tensor, shape: tuple) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"shape": shape})
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -183,7 +183,7 @@ class ReshapeOp(Op):
     def __call__(self, a: Tensor, shape: tuple) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"shape": shape})
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -196,7 +196,7 @@ class NegateOp(Op):
     def __call__(self, a: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -209,7 +209,7 @@ class TransposeOp(Op):
     def __call__(self, a: Tensor, axes: Optional[tuple] = None) -> Tensor:
         return Tensor.make_from_op(self, [a], attrs={"axes": axes})
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -222,7 +222,7 @@ class LogOp(Op):
     def __call__(self, a: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -235,7 +235,7 @@ class ExpOp(Op):
     def __call__(self, a: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
@@ -248,7 +248,7 @@ class ReLUOp(Op):
     def __call__(self, a: Tensor) -> Tensor:
         return Tensor.make_from_op(self, [a])
 
-    def gradient(self, output_grads, node, attrs):
+    def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         pass
         ### END YOUR SOLUTION
