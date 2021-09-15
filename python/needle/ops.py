@@ -134,7 +134,9 @@ class DivScalarOp(Op):
         return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
 
     def gradient(self, out_grad, node):
-        return [out_grad / node.attrs["scalar"]]
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
 
 divide_scalar = register_op("DivScalar", DivScalarOp())
