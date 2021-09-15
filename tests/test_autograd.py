@@ -154,7 +154,7 @@ def test_transpose_forward():
        [[[1.5 , 4.65],
          [1.35, 2.7 ]],
         [[2.  , 1.65],
-         [2.05, 1.2 ]]]]), axes=(2, 3)).data, np.array([[[[0.4 , 2.95],
+         [2.05, 1.2 ]]]])).data, np.array([[[[0.4 , 2.95],
          [0.05, 1.3 ]],
         [[4.8 , 1.65],
          [1.2 , 3.1 ]]],
@@ -263,8 +263,11 @@ def test_divide_scalar_backward():
     backward_check(ndl.divide_scalar, ndl.Tensor(np.random.randn(5, 4)), scalar=np.random.randn(1))
     
 
-def test_matmul_backward():
+def test_matmul_simple_backward():
     backward_check(ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(4, 5)))
+
+
+def test_matmul_batched_backward():
     backward_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
     
 
