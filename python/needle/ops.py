@@ -122,7 +122,7 @@ class EWiseDivOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -146,7 +146,7 @@ class MatMulOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -159,7 +159,7 @@ class SummationOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -172,7 +172,7 @@ class BroadcastToOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -185,7 +185,7 @@ class ReshapeOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -198,7 +198,7 @@ class NegateOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -211,7 +211,7 @@ class TransposeOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -224,7 +224,7 @@ class LogOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -237,7 +237,7 @@ class ExpOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 
@@ -250,7 +250,7 @@ class ReLUOp(Op):
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
-        pass
+        raise NotImplementedError()
         ### END YOUR SOLUTION
 
 relu = register_op("ReLU", ReLUOp())
