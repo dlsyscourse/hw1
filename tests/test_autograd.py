@@ -584,7 +584,7 @@ def submit_softmax_loss_ndl():
 
     y_one_hot = np.zeros((y.shape[0], 10))
     y_one_hot[np.arange(y.size), y] = 1
-    y = y_one_hot
+    y = ndl.Tensor(y_one_hot)
     mugrade.submit(softmax_loss(ndl.Tensor(np.zeros((y.shape[0], 10)).astype(np.float32)), y).numpy())
     np.random.seed(0)
     mugrade.submit(softmax_loss(ndl.Tensor(np.random.randn(y.shape[0], 10).astype(np.float32)), y).numpy())
