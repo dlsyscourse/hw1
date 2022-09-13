@@ -1,124 +1,100 @@
-"""Operator table."""
-# Global operator table.
-import numpy as np
+"""Operatpr table."""
+
 from numbers import Number
-from .autograd import Op, Tensor
-from .device import default_device
-from typing import Optional
+from typing import Optional, List
+from .autograd import NDArray
+from .autograd import Op, Tensor, Value, TensorOp
+from .autograd import TensorTuple, TensorTupleOp
+import numpy
 
-OP_TABLE = {}
-
-
-def register_op(name: str, op: Op) -> Op:
-    """Register an operator to the op table.
-
-    Parameters
-    ----------
-    name : str
-        The name of the op.
-
-    Returns
-    -------
-    op : Op
-        The registered op.
-    """
-    if name in OP_TABLE:
-        raise ValueError("Op %s is already registered")
-    OP_TABLE[name] = op
-    return op
+# NOTE: we will import numpy as the array_api
+# as the backend for our computations, this line will change in later homeworks
+import numpy as array_api
 
 
-def register_op_attr(op_name, attr_name, attr_value=None):
-    """Register additional attributes to an existing op by name.
+class EWiseAdd(TensorOp):
+    def compute(self, a: NDArray, b: NDArray):
+        return a + b
+
+    def gradient(self, out_grad: Tensor, node: Tensor):
+        return out_grad, out_grad
 
 
-    Parameters
-    ----------
-    op_name : str
-        The name of the op
-
-    attr_name : str
-        The name of the attribute
-
-    attr_value :
-        The attribute value to be set.
-
-    Returns
-    -------
-    The attr_value if attr_value is not None.
-    Otherwise returns a decorator function.
+def add(a, b):
+    return EWiseAdd()(a, b)
 
 
-    Note
-    ----
-    This function can be used to register additional attributes
-    to an Op used by a specific backend.
-    """
+class AddScalar(TensorOp):
+    def __init__(self, scalar):
+        self.scalar = scalar
 
-    def _register(value):
-        if op_name not in OP_TABLE:
-            raise ValueError("Op %s does not exist")
-        op = OP_TABLE[op_name]
-        setattr(op, attr_name, value)
-        return op
+    def compute(self, a: NDArray):
+        return a + self.scalar
 
-    if attr_value is None:
-        return _register
-    return _register(attr_value)
+    def gradient(self, out_grad: Tensor, node: Tensor):
+        return out_grad
 
 
-class EWiseAddOp(Op):
-    def __call__(self, a: Tensor, b: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a, b])
-
-    def gradient(self, out_grad, node):
-        return [out_grad, out_grad]
+def add_scalar(a, scalar):
+    return AddScalar(scalar)(a)
 
 
-add = register_op("EWiseAdd", EWiseAddOp())
+class EWiseMul(TensorOp):
+    def compute(self, a: NDArray, b: NDArray):
+        return a * b
 
-
-class AddScalarOp(Op):
-    def __call__(self, a: Tensor, scalar: Number) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
-
-    def gradient(self, out_grad, node):
-        return [out_grad]
-
-
-add_scalar = register_op("AddScalar", AddScalarOp())
-
-
-class EWiseMulOp(Op):
-    """Op to element-wise multiply two nodes."""
-
-    def __call__(self, a: Tensor, b: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a, b])
-
-    def gradient(self, out_grad, node):
+    def gradient(self, out_grad: Tensor, node: Tensor):
         lhs, rhs = node.inputs
-        return (out_grad * rhs, out_grad * lhs)
+        return out_grad * rhs, out_grad * lhs
 
 
-multiply = register_op("EWiseMul", EWiseMulOp())
+def multiply(a, b):
+    return EWiseMul()(a, b)
 
 
-class MulScalarOp(Op):
-    def __call__(self, a: Tensor, scalar: Number) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
+class MulScalar(TensorOp):
+    def __init__(self, scalar):
+        self.scalar = scalar
+
+    def compute(self, a: NDArray):
+        return a * self.scalar
+
+    def gradient(self, out_grad: Tensor, node: Tensor):
+        return (out_grad * self.scalar,)
+
+
+def mul_scalar(a, scalar):
+    return MulScalar(scalar)(a)
+
+
+class PowerScalar(TensorOp):
+    """Op raise a tensor to an (integer) power."""
+
+    def __init__(self, scalar: int):
+        self.scalar = scalar
+
+    def compute(self, a: NDArray) -> NDArray:
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
-        return [out_grad * node.attrs["scalar"]]
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
 
-multiply_scalar = register_op("MulScalar", MulScalarOp())
+def power_scalar(a, scalar):
+    return PowerScalar(scalar)(a)
 
 
-class EWiseDivOp(Op):
+class EWiseDiv(TensorOp):
     """Op to element-wise divide two nodes."""
 
-    def __call__(self, a: Tensor, b: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a, b])
+    def compute(self, a, b):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -126,12 +102,18 @@ class EWiseDivOp(Op):
         ### END YOUR SOLUTION
 
 
-divide = register_op("EWiseDiv", EWiseDivOp())
+def divide(a, b):
+    return EWiseDiv()(a, b)
 
 
-class DivScalarOp(Op):
-    def __call__(self, a: Tensor, scalar: Number) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"scalar": scalar})
+class DivScalar(TensorOp):
+    def __init__(self, scalar):
+        self.scalar = scalar
+
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -139,12 +121,18 @@ class DivScalarOp(Op):
         ### END YOUR SOLUTION
 
 
-divide_scalar = register_op("DivScalar", DivScalarOp())
+def divide_scalar(a, scalar):
+    return DivScalar(scalar)(a)
 
 
-class MatMulOp(Op):
-    def __call__(self, a: Tensor, b: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a, b])
+class Transpose(TensorOp):
+    def __init__(self, axes: Optional[tuple] = None):
+        self.axes = axes
+
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -152,12 +140,18 @@ class MatMulOp(Op):
         ### END YOUR SOLUTION
 
 
-matmul = register_op("MatMul", MatMulOp())
+def transpose(a, axes=None):
+    return Transpose(axes)(a)
 
 
-class SummationOp(Op):
-    def __call__(self, a: Tensor, axes: Optional[tuple] = None) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"axes": axes})
+class Reshape(TensorOp):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -165,25 +159,16 @@ class SummationOp(Op):
         ### END YOUR SOLUTION
 
 
-summation = register_op("Summation", SummationOp())
+def reshape(a, shape):
+    return Reshape(shape)(a)
 
 
-class BroadcastToOp(Op):
-    def __call__(self, a: Tensor, shape: tuple) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"shape": shape})
+class BroadcastTo(TensorOp):
+    def __init__(self, shape):
+        self.shape = shape
 
-    def gradient(self, out_grad, node):
-        ### BEGIN YOUR SOLUTION
-        raise NotImplementedError()
-        ### END YOUR SOLUTION
-
-
-broadcast_to = register_op("BroadcastTo", BroadcastToOp())
-
-
-class ReshapeOp(Op):
-    def __call__(self, a: Tensor, shape: tuple) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"shape": shape})
+    def compute(self, a):
+        return array_api.broadcast_to(a, self.shape)
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -191,12 +176,18 @@ class ReshapeOp(Op):
         ### END YOUR SOLUTION
 
 
-reshape = register_op("Reshape", ReshapeOp())
+def broadcast_to(a, shape):
+    return BroadcastTo(shape)(a)
 
 
-class NegateOp(Op):
-    def __call__(self, a: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a])
+class Summation(TensorOp):
+    def __init__(self, axes: Optional[tuple] = None):
+        self.axes = axes
+
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -204,12 +195,15 @@ class NegateOp(Op):
         ### END YOUR SOLUTION
 
 
-negate = register_op("Negate", NegateOp())
+def summation(a, axes=None):
+    return Summation(axes)(a)
 
 
-class TransposeOp(Op):
-    def __call__(self, a: Tensor, axes: Optional[tuple] = None) -> Tensor:
-        return Tensor.make_from_op(self, [a], attrs={"axes": axes})
+class MatMul(TensorOp):
+    def compute(self, a, b):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -217,12 +211,15 @@ class TransposeOp(Op):
         ### END YOUR SOLUTION
 
 
-transpose = register_op("Transpose", TransposeOp())
+def matmul(a, b):
+    return MatMul()(a, b)
 
 
-class LogOp(Op):
-    def __call__(self, a: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a])
+class Negate(TensorOp):
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
@@ -230,52 +227,55 @@ class LogOp(Op):
         ### END YOUR SOLUTION
 
 
-log = register_op("Log", LogOp())
+def negate(a):
+    return Negate()(a)
 
 
-class ExpOp(Op):
-    def __call__(self, a: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a])
-
-    def gradient(self, out_grad, node):
-        return [exp(node.inputs[0]) * out_grad]
-
-
-exp = register_op("Exp", ExpOp())
-
-
-class ReLUOp(Op):
-    def __call__(self, a: Tensor) -> Tensor:
-        return Tensor.make_from_op(self, [a])
+class Log(TensorOp):
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
     def gradient(self, out_grad, node):
         ### BEGIN YOUR SOLUTION
         raise NotImplementedError()
         ### END YOUR SOLUTION
 
-relu = register_op("ReLU", ReLUOp())
+
+def log(a):
+    return Log()(a)
 
 
-# additional helper functions
+class Exp(TensorOp):
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
+
+    def gradient(self, out_grad, node):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
 
-def full(shape, fill_value, *, dtype="float32", device=None, requires_grad=False):
-    device = device if device else default_device()
-    arr = device.empty(shape, dtype)
-    device.fill(arr, fill_value)
-
-    return Tensor.make_const(arr, device, requires_grad=requires_grad)
+def exp(a):
+    return Exp()(a)
 
 
-def zeros_like(array, *, device=None, requires_grad=False):
-    device = device if device else array.device
-    return full(
-        array.shape, 0, dtype=array.dtype, device=device, requires_grad=requires_grad
-    )
+# TODO
+class ReLU(TensorOp):
+    def compute(self, a):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
+
+    def gradient(self, out_grad, node):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
 
 
-def ones_like(array, *, device=None, requires_grad=False):
-    device = device if device else array.device
-    return full(
-        array.shape, 1, dtype=array.dtype, device=device, requires_grad=requires_grad
-    )
+def relu(a):
+    return ReLU()(a)
+

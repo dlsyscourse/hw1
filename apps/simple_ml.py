@@ -71,7 +71,7 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
         W2 (ndl.Tensor[np.float32]): 2D array of second layer weights, of shape
             (hidden_dim, num_classes)
         lr (float): step size (learning rate) for SGD
-        batch (int): size of SGD minibatch
+        batch (int): size of SGD mini-batch
 
     Returns:
         Tuple: (W1, W2)
@@ -87,7 +87,7 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
 ### CODE BELOW IS FOR ILLUSTRATION, YOU DO NOT NEED TO EDIT
 
 def loss_err(h,y):
-    """ Helper funciton to compute both loss and error"""
+    """ Helper function to compute both loss and error"""
     y_one_hot = np.zeros((y.shape[0], h.shape[-1]))
     y_one_hot[np.arange(y.size), y] = 1
     y_ = ndl.Tensor(y_one_hot)
