@@ -1,4 +1,4 @@
-"""Operatpr table."""
+"""Operator implementations."""
 
 from numbers import Number
 from typing import Optional, List
