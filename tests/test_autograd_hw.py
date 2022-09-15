@@ -283,9 +283,8 @@ def gradient_check(f, *args, tol=1e-6, **kwargs):
             f2 = float(f(*args, **kwargs).numpy().sum())
             args[i].realize_cached_data().flat[j] += eps
             numerical_grads[i].flat[j] = (f1 - f2) / (2 * eps)
-    out = f(*args, **kwargs).sum()
-    out.backward()
-    computed_grads = [a.grad.numpy() for a in args]
+    out = f(*args, **kwargs)
+    computed_grads = [x.numpy() for x in out.op.gradient_as_tuple(ndl.Tensor(np.ones(out.shape)), out)]
     error = sum(
         np.linalg.norm(computed_grads[i] - numerical_grads[i])
         for i in range(len(args))
