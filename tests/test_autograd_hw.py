@@ -272,7 +272,7 @@ def submit_forward():
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR backward passes
 
-def gradient_check(f, *args, tol=1e-6, **kwargs):
+def gradient_check(f, *args, tol=1e-6, backward=False, **kwargs):
     eps = 1e-4
     numerical_grads = [np.zeros(a.shape) for a in args]
     for i in range(len(args)):
@@ -283,8 +283,13 @@ def gradient_check(f, *args, tol=1e-6, **kwargs):
             f2 = float(f(*args, **kwargs).numpy().sum())
             args[i].realize_cached_data().flat[j] += eps
             numerical_grads[i].flat[j] = (f1 - f2) / (2 * eps)
-    out = f(*args, **kwargs)
-    computed_grads = [x.numpy() for x in out.op.gradient_as_tuple(ndl.Tensor(np.ones(out.shape)), out)]
+    if not backward:
+        out = f(*args, **kwargs)
+        computed_grads = [x.numpy() for x in out.op.gradient_as_tuple(ndl.Tensor(np.ones(out.shape)), out)]
+    else:
+        out = f(*args, **kwargs).sum()
+        out.backward()
+        computed_grads = [a.grad.numpy() for a in args]
     error = sum(
         np.linalg.norm(computed_grads[i] - numerical_grads[i])
         for i in range(len(args))
@@ -461,14 +466,14 @@ def test_compute_gradient():
     gradient_check(lambda A,B,C : ndl.summation((A@B+C)*(A@B), axes=None),
                    ndl.Tensor(np.random.randn(10,9)),
                    ndl.Tensor(np.random.randn(9,8)),
-                   ndl.Tensor(np.random.randn(10,8)))
+                   ndl.Tensor(np.random.randn(10,8)), backward=True)
     gradient_check(lambda A,B : ndl.summation(ndl.broadcast_to(A,shape=(10,9))*B, axes=None),
                    ndl.Tensor(np.random.randn(10,1)),
-                   ndl.Tensor(np.random.randn(10,9)))
+                   ndl.Tensor(np.random.randn(10,9)), backward=True)
     gradient_check(lambda A,B,C : ndl.summation(ndl.reshape(A,shape=(10,10))@B/5+C, axes=None),
                    ndl.Tensor(np.random.randn(100)),
                    ndl.Tensor(np.random.randn(10,5)),
-                   ndl.Tensor(np.random.randn(10,5)))
+                   ndl.Tensor(np.random.randn(10,5)), backward=True)
 
     # check gradient of gradient
     x2 = ndl.Tensor([6])
@@ -563,7 +568,7 @@ def test_softmax_loss_ndl():
     # test softmax loss backward
     Zsmall = ndl.Tensor(np.random.randn(16, 10).astype(np.float32))
     ysmall = ndl.Tensor(y_one_hot[:16])
-    gradient_check(softmax_loss, Zsmall, ysmall, tol=0.01)
+    gradient_check(softmax_loss, Zsmall, ysmall, tol=0.01, backward=True)
 
 
 def submit_softmax_loss_ndl():
