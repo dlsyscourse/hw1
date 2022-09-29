@@ -11,6 +11,7 @@ TENSOR_COUNTER = 0
 # NOTE: we will import numpy as the array_api
 # as the backend for our computations, this line will change in later homeworks
 import numpy as array_api
+
 NDArray = numpy.ndarray
 
 
@@ -33,9 +34,11 @@ class CPUDevice(Device):
     def enabled(self):
         return True
 
+
 def cpu():
     """Return cpu device"""
     return CPUDevice()
+
 
 def all_devices():
     """return a list of all available devices"""
@@ -86,7 +89,7 @@ class Op:
         raise NotImplementedError()
 
     def gradient_as_tuple(self, out_grad: "Value", node: "Value") -> Tuple["Value"]:
-        """ Convenience method to always return a tuple from gradient call"""
+        """Convenience method to always return a tuple from gradient call"""
         output = self.gradient(out_grad, node)
         if isinstance(output, tuple):
             return output
@@ -97,7 +100,7 @@ class Op:
 
 
 class TensorOp(Op):
-    """ Op class specialized to output tensors, will be alternate subclasses for other structures """
+    """Op class specialized to output tensors, will be alternate subclasses for other structures"""
 
     def __call__(self, *args):
         return Tensor.make_from_op(self, args)
