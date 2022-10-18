@@ -335,6 +335,7 @@ def test_broadcast_to_backward():
     gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn()), shape=(3, 3, 3))
     gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(5,4,1)), shape=(5,4,3))
     gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(5)), shape=(1, 5))
+    gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(3, 1, 5)), shape=(2, 3, 4, 5))
 
 def test_summation_backward():
     gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(1,))
