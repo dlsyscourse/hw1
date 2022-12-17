@@ -211,7 +211,7 @@ class TensorTuple(Value):
 
     def detach(self):
         """Create a new tensor that shares the data but detaches from the graph."""
-        return Tuple.make_const(self.realize_cached_data())
+        return TensorTuple.make_const(self.realize_cached_data())
 
 
 class Tensor(Value):
@@ -254,14 +254,6 @@ class Tensor(Value):
         if array_api is numpy:
             return numpy.array(numpy_array, dtype=dtype)
         return array_api.array(numpy_array, device=device, dtype=dtype)
-
-    @staticmethod
-    def make_from_op(op: Op, inputs: List["Value"]):
-        tensor = Tensor.__new__(Tensor)
-        tensor._init(op, inputs)
-        if not LAZY_MODE:
-            tensor.realize_cached_data()
-        return tensor
 
     @staticmethod
     def make_const(data, requires_grad=False):
