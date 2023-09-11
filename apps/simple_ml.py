@@ -1,14 +1,17 @@
+"""hw1/apps/simple_ml.py"""
+
 import struct
 import gzip
 import numpy as np
 
 import sys
-sys.path.append('python/')
+
+sys.path.append("python/")
 import needle as ndl
 
 
 def parse_mnist(image_filesname, label_filename):
-    """ Read an images and labels file in MNIST format.  See this page:
+    """Read an images and labels file in MNIST format.  See this page:
     http://yann.lecun.com/exdb/mnist/ for a description of the file format.
 
     Args:
@@ -35,7 +38,7 @@ def parse_mnist(image_filesname, label_filename):
 
 
 def softmax_loss(Z, y_one_hot):
-    """ Return softmax loss.  Note that for the purposes of this assignment,
+    """Return softmax loss.  Note that for the purposes of this assignment,
     you don't need to worry about "nicely" scaling the numerical properties
     of the log-sum-exp computation, but can just compute this directly.
 
@@ -55,8 +58,8 @@ def softmax_loss(Z, y_one_hot):
     ### END YOUR SOLUTION
 
 
-def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
-    """ Run a single epoch of SGD for a two-layer neural network defined by the
+def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
+    """Run a single epoch of SGD for a two-layer neural network defined by the
     weights W1 and W2 (with no bias terms):
         logits = ReLU(X * W1) * W1
     The function should use the step size lr, and the specified batch size (and
@@ -86,9 +89,10 @@ def nn_epoch(X, y, W1, W2, lr = 0.1, batch=100):
 
 ### CODE BELOW IS FOR ILLUSTRATION, YOU DO NOT NEED TO EDIT
 
-def loss_err(h,y):
-    """ Helper function to compute both loss and error"""
+
+def loss_err(h, y):
+    """Helper function to compute both loss and error"""
     y_one_hot = np.zeros((y.shape[0], h.shape[-1]))
     y_one_hot[np.arange(y.size), y] = 1
     y_ = ndl.Tensor(y_one_hot)
-    return softmax_loss(h,y_).numpy(), np.mean(h.numpy().argmax(axis=1) != y)
+    return softmax_loss(h, y_).numpy(), np.mean(h.numpy().argmax(axis=1) != y)
