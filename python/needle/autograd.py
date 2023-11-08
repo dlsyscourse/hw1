@@ -360,8 +360,9 @@ class Tensor(Value):
 
     __radd__ = __add__
     __rmul__ = __mul__
-    __rsub__ = __sub__
     __rmatmul__ = __matmul__
+    def __rsub__(self, other):
+        return other + (-self)
 
 
 def compute_gradient_of_variables(output_tensor, out_grad):
