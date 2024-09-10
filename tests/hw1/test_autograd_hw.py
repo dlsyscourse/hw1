@@ -19,16 +19,6 @@ def test_power_scalar_forward():
     )
 
 
-def test_ewisepow_forward():
-    np.testing.assert_allclose(
-        ndl.power(
-            ndl.Tensor([[1.0, 2.0, 3.0]]),
-            ndl.Tensor([[0, 0, 2]]),
-        ).numpy(),
-        np.array([[1.0, 1.0, 9.0]]),
-    )
-
-
 def test_divide_forward():
     np.testing.assert_allclose(
         ndl.divide(
@@ -354,9 +344,32 @@ def test_transpose_forward():
     )
 
 
+def test_log_forward():
+    np.testing.assert_allclose(
+        ndl.log(ndl.Tensor([[4.0], [4.55]])).numpy(),
+        np.array([[1.38629436112], [1.515127232963]]),
+    )
+
+
+def test_exp_forward():
+    np.testing.assert_allclose(
+        ndl.exp(ndl.Tensor([[4.0], [4.55]])).numpy(),
+        np.array([[54.59815003],[94.63240831]]),
+    )
+
+
+def test_ewisepow_forward():
+    np.testing.assert_allclose(
+        ndl.power(
+            ndl.Tensor([[1.0, 2.0, 3.0]]),
+            ndl.Tensor([[0, 0, 2]]),
+        ).numpy(),
+        np.array([[1.0, 1.0, 9.0]]),
+    )
+
+
 def submit_forward():
     mugrade.submit(ndl.power_scalar(ndl.Tensor([[0.3, 2.5]]), scalar=3).numpy())
-    mugrade.submit(ndl.power(ndl.Tensor([[0.3, 2.5]]), ndl.Tensor([[2, 0]])).numpy())
     mugrade.submit(
         ndl.divide(
             ndl.Tensor([[3.4, 2.35, 1.25], [0.45, 1.95, 2.55]]),
@@ -431,7 +444,11 @@ def submit_forward():
     mugrade.submit(
         ndl.transpose(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy()
     )
-
+    mugrade.submit(ndl.log(ndl.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
+    mugrade.submit(ndl.log(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
+    mugrade.submit(ndl.exp(ndl.Tensor([[[3.45]], [[2.54]], [[1.91]]])).numpy())
+    mugrade.submit(ndl.exp(ndl.Tensor([[4.45, 2.15], [1.89, 1.21], [6.15, 2.42]])).numpy())
+    mugrade.submit(ndl.power(ndl.Tensor([[0.3, 2.5]]), ndl.Tensor([[2, 0]])).numpy())
 
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR backward passes
@@ -545,6 +562,19 @@ def test_summation_backward():
     gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4)), axes=(0, 1))
     gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5, 4, 1)), axes=(0, 1))
 
+
+def test_log_backward():
+    gradient_check(ndl.log, ndl.Tensor(1 + np.random.rand(5, 4)))
+
+
+def test_exp_backward():
+    gradient_check(ndl.exp, ndl.Tensor(1 + np.random.rand(5, 4))) 
+
+
+def test_ewisepow_backward():
+    gradient_check(
+        ndl.power, ndl.Tensor([[1.0, 2.0, 3.0]]), ndl.Tensor(np.ones((3,))*2)
+    )
 
 def submit_backward():
     np.random.seed(0)
@@ -667,6 +697,15 @@ def submit_backward():
         )
     )
 
+    mugrade.submit(gradient_check(ndl.log, ndl.Tensor(10 + np.random.rand(5, 4))))
+    mugrade.submit(gradient_check(ndl.exp, ndl.Tensor(1.5 + np.random.rand(5, 4))))
+    mugrade.submit(
+        gradient_check(
+            ndl.power,
+            ndl.Tensor([[4.0, 5.0, 6.0]]), 
+            ndl.Tensor(np.ones((3,))*2),
+        )
+    )
 
 ##############################################################################
 ### TESTS/SUBMISSION CODE FOR find_topo_sort

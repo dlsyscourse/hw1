@@ -11,8 +11,8 @@ import numpy
 # NOTE: we will import numpy as the array_api
 # as the backend for our computations, this line will change in later homeworks
 
+BACKEND = "np"
 import numpy as array_api
-
 
 class EWiseAdd(TensorOp):
     def compute(self, a: NDArray, b: NDArray):
@@ -69,6 +69,23 @@ def mul_scalar(a, scalar):
     return MulScalar(scalar)(a)
 
 
+class EWisePow(TensorOp):
+    """Op to element-wise raise a tensor to a power."""
+
+    def compute(self, a: NDArray, b: NDArray) -> NDArray:
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
+        
+    def gradient(self, out_grad, node):
+        ### BEGIN YOUR SOLUTION
+        raise NotImplementedError()
+        ### END YOUR SOLUTION
+
+def power(a, b):
+    return EWisePow()(a, b)
+
+
 class PowerScalar(TensorOp):
     """Op raise a tensor to an (integer) power."""
 
@@ -88,27 +105,6 @@ class PowerScalar(TensorOp):
 
 def power_scalar(a, scalar):
     return PowerScalar(scalar)(a)
-
-
-class EWisePow(TensorOp):
-    """Op to element-wise raise a tensor to a power."""
-
-    def compute(self, a: NDArray, b: NDArray) -> NDArray:
-        return a**b
-
-    def gradient(self, out_grad, node):
-        if not isinstance(node.inputs[0], NDArray) or not isinstance(
-            node.inputs[1], NDArray
-        ):
-            raise ValueError("Both inputs must be tensors (NDArray).")
-
-        a, b = node.inputs[0], node.inputs[1]
-        grad_a = out_grad * b * (a ** (b - 1))
-        grad_b = out_grad * (a**b) * array_api.log(a.data)
-        return grad_a, grad_b
-
-def power(a, b):
-    return EWisePow()(a, b)
 
 
 class EWiseDiv(TensorOp):
@@ -302,3 +298,4 @@ class ReLU(TensorOp):
 
 def relu(a):
     return ReLU()(a)
+
