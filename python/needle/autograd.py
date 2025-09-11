@@ -304,7 +304,7 @@ class Tensor(Value):
     def numpy(self):
         data = self.realize_cached_data()
         if array_api is numpy:
-            return data
+            return numpy.array(data)
         return data.numpy()
 
     def __add__(self, other):
