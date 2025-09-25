@@ -573,7 +573,7 @@ def test_exp_backward():
 
 def test_ewisepow_backward():
     gradient_check(
-        ndl.power, ndl.Tensor([[1.0, 2.0, 3.0]]), ndl.Tensor(np.ones((3,))*2)
+        ndl.power, ndl.Tensor([[1.0, 2.0, 3.0]]), ndl.Tensor(np.ones((1,3))*2)
     )
 
 def submit_backward():
@@ -703,7 +703,7 @@ def submit_backward():
         gradient_check(
             ndl.power,
             ndl.Tensor([[4.0, 5.0, 6.0]]), 
-            ndl.Tensor(np.ones((3,))*2),
+            ndl.Tensor(np.ones((1,3))*2),
         )
     )
 
@@ -1032,10 +1032,10 @@ def test_nn_epoch_ndl():
     )(W2.numpy())
     W1, W2 = nn_epoch(X, y, W1, W2, lr=1.0, batch=50)
     np.testing.assert_allclose(
-        dW1.reshape(5, 10), W1_0 - W1.numpy(), rtol=1e-4, atol=1e-4
+        W1_0 - W1.numpy(), dW1.reshape(5, 10), rtol=1e-4, atol=1e-4
     )
     np.testing.assert_allclose(
-        dW2.reshape(10, 3), W2_0 - W2.numpy(), rtol=1e-4, atol=1e-4
+        W2_0 - W2.numpy(), dW2.reshape(10, 3), rtol=1e-4, atol=1e-4
     )
 
     # test full epoch
